@@ -1,0 +1,51 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class ButtonManager : MonoBehaviour
+{
+    [SerializeField] GameObject helpText;
+    [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject player;
+
+    public void StartPress()
+    {
+        SceneManager.LoadScene("Main_Map");
+    }
+
+    public void Resume()
+    {
+        player.GetComponent<PlayerController>().Unpause();
+    }
+
+    public void Help()
+    {
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(false);
+            helpText.SetActive(true);
+        }
+        else
+        {
+            helpText.SetActive(true);
+        }
+    }
+    public void HelpExit()
+    {
+        if (pauseMenu != null)
+        {
+            helpText.SetActive(false);
+            pauseMenu.SetActive(true);
+        }
+        else
+        {
+            helpText.SetActive(false);
+        }
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
+    }
+}
