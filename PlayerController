@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject pauseMenu;
     bool paused = false;
 
+    public bool inDialogue = false;
+
     bool running = false;
 
     float cameraPitch = 0;
@@ -68,6 +70,12 @@ public class PlayerController : MonoBehaviour
         {
             running = false;
             walkSpeed = 6;
+        }
+
+        //player is unable to move during dialogue
+        if (inDialogue == true)
+        {
+            walkSpeed = 0;
         }
     }
 
