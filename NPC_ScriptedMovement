@@ -1,0 +1,52 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NPC_ScriptedMovement : MonoBehaviour
+{
+    [SerializeField] Transform[] movementPoints; //list which contains the different transforms of movement points
+    [SerializeField] int movementPointsLength = 0;
+    Vector3 target;
+    [SerializeField] int targetNum = 0; //character starts with the first movement point
+    [SerializeField] bool moving = true;
+
+    float speed = 5;
+
+    Animator anim;
+
+    private void Start()
+    {
+        anim = GetComponent<Animator>();
+
+        foreach (Transform i in movementPoints)
+        {
+            movementPointsLength += 1;
+        }
+    }
+
+    void Update()
+    {
+        if (moving == true)
+        {
+            anim.SetBool("IsWalking", true);
+
+            target = new Vector3(movementPoints[targetNum].transform.position.x, transform.position.y, movementPoints[targetNum].transform.position.z);
+
+            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        }
+        else if (!moving)
+        {
+            anim.SetBool("IsWalking", false);
+        }
+
+        if (transform.position.x == movementPoints[targetNum].transform.position.x && transform.position.z == movementPoints[targetNum].transform.position.z && targetNum < movementPointsLength)
+        {
+            targetNum += 1;
+        }
+
+        if (targetNum == movementPointsLength)
+        {
+            moving = false;
+        }
+    }
+}
