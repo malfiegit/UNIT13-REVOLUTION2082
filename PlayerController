@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public float health = 100;
+
     [SerializeField] Transform playerCamera = null;
-    [SerializeField] float mouseSensitivity = 3.5f;
-    public float walkSpeed = 6;
+    public float mouseSensitivity = 3.5f;
+    public float walkSpeed = 5;
     [SerializeField] float gravity = -13;
     public float jumpSpeed = 6;
     [SerializeField] [Range(0, 0.5f)] float moveSmoothTime = 0.3f;
@@ -21,6 +23,8 @@ public class PlayerController : MonoBehaviour
 
     bool running = false;
 
+    private GameObject crosshair;
+
     float cameraPitch = 0;
     float velocityY = 0;
     CharacterController controller;
@@ -33,6 +37,13 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        gameObject.GetComponent<CharacterController>().enabled = true;
+
+        GameObject.Find("PlayerPositioner").GetComponent<PlayerPositioner>().correctPlayer = true;
+
+        crosshair = GameObject.Find("Crosshair");
+        pauseMenu = GameObject.Find("Pause Menu Parent").transform.GetChild(0).gameObject;
+
         controller = GetComponent<CharacterController>();
         if (lockCursor)
         {
@@ -52,6 +63,7 @@ public class PlayerController : MonoBehaviour
             Time.timeScale = 0;
             paused = true;
             pauseMenu.SetActive(true);
+            crosshair.SetActive(false);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
@@ -64,12 +76,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftAlt) && running == false)
         {
             running = true;
-            walkSpeed = 8;
+            walkSpeed = 13;
         }
         else if (Input.GetKeyDown(KeyCode.LeftAlt) && running == true)
         {
             running = false;
-            walkSpeed = 6;
+            walkSpeed = 5;
         }
 
         //player is unable to move during dialogue
@@ -118,12 +130,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
         {
             running = false; //player is no longer sprinting once their character fully stops
-            walkSpeed = 6;
+            walkSpeed = 5;
         }
     }
 
     public void Unpause()
     {
+        crosshair.SetActive(true);
+
         Time.timeScale = 1;
         paused = false;
         pauseMenu.SetActive(false);
