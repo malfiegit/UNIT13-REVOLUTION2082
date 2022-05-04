@@ -1,0 +1,22 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class MouseSensScript : MonoBehaviour
+{
+    [SerializeField] Slider slider;
+    [SerializeField] TextMeshProUGUI sliderText;
+
+    [SerializeField] GameObject player;
+
+    void Start()
+    {
+        slider.onValueChanged.AddListener((value) =>
+        {
+            sliderText.text = value.ToString("0.00");
+            player.GetComponent<PlayerController>().mouseSensitivity = value;
+        });
+    }
+}
