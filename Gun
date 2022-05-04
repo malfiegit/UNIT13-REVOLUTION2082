@@ -1,0 +1,39 @@
+using UnityEngine;
+
+public class Gun : MonoBehaviour
+{
+    [SerializeField] float damage = 10; //damage differentiates between weapons, this is a default amount
+    [SerializeField] float range = 100; //range differentiates between weapons, this is a default amount
+    [SerializeField] float fireRate = 15;
+
+    [SerializeField] Camera fpsCam;
+    [SerializeField] ParticleSystem muzzleFlash;
+
+    private float nextTimeToFire = 0;
+
+
+    void Update()
+    {
+        if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
+        {
+            nextTimeToFire = Time.time + 1 / fireRate;
+            Shoot();
+        }
+    }
+
+    void Shoot()
+    {
+        muzzleFlash.Play();
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+        {
+            EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(damage);
+            }
+        }
+    }
+}
