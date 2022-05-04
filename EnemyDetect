@@ -1,0 +1,145 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class EnemyDetect : MonoBehaviour
+{
+    Animator anim;
+
+    public bool detected;
+    public bool wasDetected;
+    public GameObject target;
+    public Transform enemy;
+
+    [SerializeField] Transform stopPoint;
+
+    public GameObject player;
+
+    public GameObject plasma;
+    public Transform shootPoint;
+
+    public float shootSpeed = 15;
+    public float timeToShoot = 2;
+
+    public float walkSpeed = 4;
+
+    float DFP;
+
+    //amount of time that the enemy has to find player before they give up looking
+    float detectionTime = 0;
+    float detectionTimer = 5;
+    bool resetTimer = false;
+
+    private void Start()
+    {
+        anim = enemy.GetComponent<Animator>();
+
+        player = GameObject.Find("Player");
+    }
+
+    void Update()
+    {
+        DFP = Vector3.Distance(enemy.position, player.transform.position);
+
+        if (resetTimer)
+        {
+            detectionTime = Random.Range(7, 12);
+            detectionTimer = 0;
+            resetTimer = false;
+        }
+
+        if (detected)
+        {
+            if (DFP >= 8)
+            {
+                enemy.LookAt(target.transform);
+
+                //moves towards player
+                anim.SetBool("IsWalking", true);
+
+                enemy.position = Vector3.MoveTowards(enemy.position, target.transform.position, walkSpeed * Time.deltaTime);
+            }
+
+            if (DFP < 8)
+            {
+                //this uses t to look at the player without having to use target which is already null to make sure that the enemy no longer tries to follow the player, making it stop before getting too close
+                enemy.LookAt(target.transform);
+
+                anim.SetBool("IsWalking", false);
+            }
+        }
+
+        if (wasDetected)
+        {
+            enemy.LookAt(target.transform);
+
+            detectionTimer += Time.deltaTime;
+
+            enemy.position = Vector3.MoveTowards(enemy.position, target.transform.position, walkSpeed * Time.deltaTime);
+
+            if (detectionTimer > detectionTime)
+            {
+                target = null;
+
+                anim.SetBool("IsWalking", false);
+
+                wasDetected = false;
+            }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (detected)
+        {
+            //fires at player
+            timeToShoot -= Time.deltaTime;
+
+            if (timeToShoot < 0)
+            {
+                ShootPlayer();
+                timeToShoot = 2;
+            }
+        }
+
+        if (wasDetected)
+        {
+            //fires at player
+            timeToShoot -= Time.deltaTime;
+
+            if (timeToShoot < 0)
+            {
+                ShootPlayer();
+                timeToShoot = 2;
+            }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            detected = true;
+            wasDetected = false;
+            target = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            detected = false;
+            wasDetected = true;
+            resetTimer = true;
+        }
+    }
+
+    private void ShootPlayer()
+    {
+        GameObject currentBullet = Instantiate(plasma, shootPoint.position, shootPoint.rotation);
+        Rigidbody rig = currentBullet.GetComponent<Rigidbody>();
+
+        rig.AddForce(transform.forward * shootSpeed, ForceMode.VelocityChange);
+    }
+}
