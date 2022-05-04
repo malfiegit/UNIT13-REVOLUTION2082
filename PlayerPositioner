@@ -1,0 +1,85 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerPositioner : MonoBehaviour
+{
+    public bool enteredPub = false;
+    public bool leftPub = false;
+    public bool leftShack = false;
+
+    public bool hasKey = false;
+    public bool hasUzi = false;
+    public bool correctPlayer = false;
+
+    [SerializeField] GameObject player;
+    [SerializeField] GameObject pubEntrance;
+    [SerializeField] GameObject shackEntrance;
+
+    void Update()
+    {
+        if (correctPlayer == true)
+        {
+            player = GameObject.Find("Player");
+            pubEntrance = GameObject.Find("PubEntrance");
+            shackEntrance = GameObject.Find("ShackEntrance");
+
+            correctPlayer = false;
+        }
+
+        //so that no error messages are shown if the script cant find them
+        if (pubEntrance == null)
+        {
+            return;
+        }
+
+        if (shackEntrance == null)
+        {
+            return;
+        }
+
+        if (leftPub == true)
+        {
+            if (hasUzi == true)
+            {
+                player.transform.GetChild(1).gameObject.SetActive(true);
+            }
+
+            player.GetComponent<CharacterController>().enabled = false;
+            player.transform.position = pubEntrance.transform.position;
+
+            if (player.transform.position == pubEntrance.transform.position)
+            {
+                player.GetComponent<CharacterController>().enabled = true;
+                leftPub = false;
+            }
+        }
+
+        if (leftShack == true)
+        {
+            if (hasUzi == true)
+            {
+                player.transform.GetChild(1).gameObject.SetActive(true);
+            }
+
+            player.GetComponent<CharacterController>().enabled = false;
+            player.transform.position = shackEntrance.transform.position;
+
+            if (player.transform.position == shackEntrance.transform.position)
+            {
+                player.GetComponent<CharacterController>().enabled = true;
+                leftShack = false;
+            }
+        }
+
+        if (enteredPub == true)
+        {
+            if (hasUzi == true)
+            {
+                player.transform.GetChild(1).gameObject.SetActive(true);
+            }
+
+            enteredPub = false;
+        }
+    }
+}
