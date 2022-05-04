@@ -1,0 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+public class EnterPointScript : MonoBehaviour
+{
+    GameObject enterTexts;
+    [SerializeField] GameObject leaveText;
+    [SerializeField] GameObject enterText;
+
+    [SerializeField] GameObject playerPositioner;
+
+    public bool showMessage = false;
+
+    private void Start()
+    {
+        enterTexts = GameObject.Find("EnterTexts");
+
+        leaveText = enterTexts.transform.GetChild(0).gameObject;
+        enterText = enterTexts.transform.GetChild(1).gameObject;
+
+        playerPositioner = GameObject.Find("PlayerPositioner");
+    }
+
+    private void Update()
+    {
+        if (gameObject.CompareTag("ShopExit"))
+        {
+            if (showMessage == true)
+            {
+                leaveText.gameObject.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    SceneManager.LoadScene("Main_Map");
+                }
+            }
+        }
+
+        if (gameObject.CompareTag("ShackEntrance"))
+        {
+            if (showMessage == true)
+            {
+                enterText.gameObject.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    SceneManager.LoadScene("Shack");
+                }
+            }
+        }
+
+        if (gameObject.CompareTag("PubEntrance"))
+        {
+            if (showMessage == true)
+            {
+                enterText.gameObject.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    playerPositioner.GetComponent<PlayerPositioner>().enteredPub = true;
+                    SceneManager.LoadScene("Pub");
+                }
+            }
+        }
+
+        if (gameObject.CompareTag("PubExit"))
+        {
+            if (showMessage == true)
+            {
+                leaveText.gameObject.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    playerPositioner.GetComponent<PlayerPositioner>().leftPub = true;
+                    SceneManager.LoadScene("Main_Map");
+                }
+            }
+        }
+
+        if (gameObject.CompareTag("ShackExit"))
+        {
+            if (showMessage == true)
+            {
+                leaveText.gameObject.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    playerPositioner.GetComponent<PlayerPositioner>().leftShack = true;
+                    SceneManager.LoadScene("Main_Map");
+                }
+            }
+        }
+
+        if (showMessage == false)
+        {
+            leaveText.gameObject.SetActive(false);
+            enterText.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            showMessage = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            showMessage = false;
+        }
+    }
+}
