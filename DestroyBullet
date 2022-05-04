@@ -1,0 +1,19 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DestroyBullet : MonoBehaviour
+{
+    private float time = 4;
+    private float timer = 0;
+
+    void Update()
+    {
+        timer += Time.deltaTime;
+
+        if (timer > time)
+        {
+            Destroy(gameObject);
+        }
+    }
+}
