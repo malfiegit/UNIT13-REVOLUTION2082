@@ -2,34 +2,100 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
     public NPC_Dialogue npc;
 
-    bool isTalking = false;
+    public bool isTalking = false;
+    public bool alreadyApproached = false;
 
-    float distance;
+    public bool lookedAt;
+
+    float DFP;
     float curResponseTracker = 0;
 
     public GameObject player;
-    public GameObject dialogueUI;
+    public GameObject crosshair;
 
-    public Text npcName;
-    public Text npcDialogueBox;
-    public Text playerResponse;
+    public GameObject panel;
+    public GameObject npcName;
+    public GameObject npcDialogueBox;
+    public GameObject playerResponse;
+
+    public GameObject talkText;
+
+    [SerializeField] bool showMessage = false;
+    [SerializeField] float messageTime = 3;
+    [SerializeField] float messageTimer = 0;
 
     void Start()
     {
-        dialogueUI.SetActive(false);
+        crosshair = GameObject.Find("Crosshair");
+        player = GameObject.Find("Player");
+        panel = GameObject.Find("Dialogue Menu").transform.GetChild(0).gameObject;
+        npcName = GameObject.Find("NPCName").transform.GetChild(0).gameObject;
+        npcDialogueBox = GameObject.Find("Dialogue").transform.GetChild(0).gameObject;
+        playerResponse = GameObject.Find("PlayerResponse").transform.GetChild(0).gameObject;
+        talkText = GameObject.Find("TalkTextParent").transform.GetChild(0).gameObject;
     }
 
-    private void OnMouseOver()
+    private void Update()
     {
-        distance = Vector3.Distance(player.transform.position, transform.position);
+        DFP = Vector3.Distance(player.transform.position, transform.position);
 
-        if (distance <= 2.5f)
+        //special stuff for different characters
+        if (gameObject.CompareTag("Stranger") && alreadyApproached == false)
         {
+            if (DFP <= 3)
+            {
+                StartConversation();
+                alreadyApproached = true;
+            }
+        }
+
+        if (gameObject.CompareTag("Bartender") && alreadyApproached == true)
+        {
+            GameObject.Find("PlayerPositioner").GetComponent<PlayerPositioner>().hasUzi = true;
+            player.transform.GetChild(1).gameObject.SetActive(true);
+
+            messageTimer = 0;
+            GameObject.Find("Player Messages").transform.GetChild(0).gameObject.SetActive(true);
+            GameObject.Find("Player Messages").transform.GetChild(0).GetComponent<TextMeshProUGUI>().text += " an uzi";
+
+            showMessage = true;
+            alreadyApproached = false;
+        }
+
+        if (gameObject.CompareTag("Bobert") && alreadyApproached == true)
+        {
+            GameObject.Find("PlayerPositioner").GetComponent<PlayerPositioner>().hasKey = true;
+
+            GameObject.Find("Player Messages").transform.GetChild(0).gameObject.SetActive(true);
+            GameObject.Find("Player Messages").transform.GetChild(0).GetComponent<TextMeshProUGUI>().text += " a key";
+
+            showMessage = true;
+            alreadyApproached = false;
+        }
+
+        if (isTalking == true)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                EndDialogue();
+
+                if (gameObject.CompareTag("Bartender"))
+                {
+                    alreadyApproached = true;
+                }
+
+                if (gameObject.CompareTag("Bobert"))
+                {
+                    alreadyApproached = true;
+                }
+            }
+
             if (Input.GetKeyDown(KeyCode.W))
             {
                 curResponseTracker++;
@@ -48,54 +114,137 @@ public class DialogueManager : MonoBehaviour
                 }
             }
 
-            //trigger dialogue
-            if (Input.GetKeyDown(KeyCode.E) && isTalking == false)
-            {
-                StartConversation();
-            }
-            else if (Input.GetKeyDown(KeyCode.E) && isTalking == true)
-            {
-                EndDialogue();
-            }
-
             //-EACH TIME THERE IS A NEW LENGTH OF DIALOGUE IT HAS TO BE WRITTEN HERE-//
             if (curResponseTracker == 0 && npc.playerDialogue.Length >= 0)
             {
-                playerResponse.text = npc.playerDialogue[0]; //makes sure player response is always relevant to NPC dialogue
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[0]; //makes sure player response is always relevant to NPC dialogue
 
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    npcDialogueBox.text = npc.dialogue[1];
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[1];
                 }
             }
             else if (curResponseTracker == 1 && npc.playerDialogue.Length >= 1)
             {
-                playerResponse.text = npc.playerDialogue[1];
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[1];
 
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    npcDialogueBox.text = npc.dialogue[2];
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[2];
                 }
             }
             else if (curResponseTracker == 2 && npc.playerDialogue.Length >= 2)
             {
-                playerResponse.text = npc.playerDialogue[2];
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[2];
 
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    npcDialogueBox.text = npc.dialogue[3];
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[3];
                 }
+            }
+            else if (curResponseTracker == 3 && npc.playerDialogue.Length >= 3)
+            {
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[3];
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[4];
+                }
+            }
+
+            else if (curResponseTracker == 4 && npc.playerDialogue.Length >= 4)
+            {
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[4]; //makes sure player response is always relevant to NPC dialogue
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[5];
+                }
+            }
+            else if (curResponseTracker == 5 && npc.playerDialogue.Length >= 5)
+            {
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[5];
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[6];
+                }
+            }
+            else if (curResponseTracker == 6 && npc.playerDialogue.Length >= 6)
+            {
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[6];
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[7];
+                }
+            }
+            else if (curResponseTracker == 7 && npc.playerDialogue.Length >= 7)
+            {
+                playerResponse.GetComponent<TextMeshProUGUI>().text = npc.playerDialogue[7];
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[8];
+                }
+            }
+        }
+
+        if (lookedAt == true)
+        {
+            if (DFP <= 3 && isTalking == false)
+            {
+                talkText.gameObject.SetActive(true);
+
+                //trigger dialogue
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    StartConversation();
+                }
+            }
+        }
+
+        if (lookedAt == false)
+        {
+            talkText.gameObject.SetActive(false);
+        }
+
+        if (showMessage == true)
+        {
+            messageTimer += Time.deltaTime;
+
+            if (messageTimer > messageTime)
+            {
+                GameObject.Find("Player Messages").transform.GetChild(0).gameObject.SetActive(false);
+                showMessage = false;
             }
         }
     }
 
+    private void OnMouseEnter()
+    {
+        lookedAt = true;
+    }
+
+    private void OnMouseExit()
+    {
+        lookedAt = false;
+    }
+
     void StartConversation()
     {
+        //sets all game objects needed for visible dialogue to true
+        panel.SetActive(true);
+        npcName.SetActive(true);
+        npcDialogueBox.SetActive(true);
+        playerResponse.SetActive(true);
+
+        talkText.gameObject.SetActive(false);
         isTalking = true;
         curResponseTracker = 0;
-        dialogueUI.SetActive(true);
-        npcName.text = npc.name;
-        npcDialogueBox.text = npc.dialogue[0];
+        crosshair.SetActive(false);
+        npcName.GetComponent<TextMeshProUGUI>().text = npc.name;
+        npcDialogueBox.GetComponent<TextMeshProUGUI>().text = npc.dialogue[0];
 
         //stops player from being able to move whilst talking
         player.GetComponent<PlayerController>().inDialogue = true;
@@ -103,8 +252,14 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
+        //sets all game objects needed for visible dialogue to false
+        panel.SetActive(false);
+        npcName.SetActive(false);
+        npcDialogueBox.SetActive(false);
+        playerResponse.SetActive(false);
+
         isTalking = false;
-        dialogueUI.SetActive(false);
+        crosshair.SetActive(true);
 
         //allows player to move again
         player.GetComponent<PlayerController>().inDialogue = false;
